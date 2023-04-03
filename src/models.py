@@ -34,5 +34,36 @@ class People(db.Model):
             "height": self.height,
             "mass": self.mass,
             "hair_color": self.hair_color,
-            # do not serialize the password, its a security breach
-        }        
+        }
+
+class Planets(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    diameter = db.Column(db.String(120), unique=False, nullable=False)
+    rotation_period = db.Column(db.String(80), unique=False, nullable=False)
+    orbital_period = db.Column(db.String(80), unique=False, nullable=False)
+    gravity = db.Column(db.String(80), unique=False, nullable=False)
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "diameter": self.diameter,
+            "rotation_period": self.rotation_period,
+            "orbital_period": self.orbital_period,
+            "gravity": self.gravity,
+        }
+
+class Starships(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    model = db.Column(db.String(120), unique=False, nullable=False)
+    starship_class = db.Column(db.String(80), unique=False, nullable=False)
+    manufacturer = db.Column(db.String(80), unique=False, nullable=False)
+    cost_in_credits = db.Column(db.String(80), unique=False, nullable=False)
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "model": self.model,
+            "starship_class": self.starship_class,
+            "manufacturer": self.orbital_period,
+            "cost_in_credits": self.gracost_in_credits,
+        }                   
