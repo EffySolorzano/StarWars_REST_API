@@ -144,7 +144,40 @@ def get_specific_person(name):
     if person:
         return jsonify(person.serialize()), 200
     else:
-        raise APIException('Person not found', status_code=404)    
+        raise APIException('Person not found', status_code=404)
+
+    
+@app.route('/edit-person/<string:name>', methods=['PUT'])
+def people_edit(name):
+    body = request.get_json()   
+    new_name = body["name"]
+    new_height = body["height"]
+    new_mass= body["mass"]
+    new_hair_color= body["hair_color"]
+
+    person = People.query.filter_by(name=name).first()  
+    person.name = new_name
+    person.height = new_height
+    person.mass = new_mass
+    person.hair_color = new_hair_color
+
+
+    db.session.commit()
+  
+    return jsonify(person.serialize()), 200
+
+@app.route('/delete-people', methods=['DELETE'])
+def delete_people():
+    body = request.get_json()   
+    name = body["name"]
+
+    person = People.query.filter_by(name=name).first()
+    person.name = name
+
+    db.session.delete(person)
+    db.session.commit()  
+  
+    return jsonify("Character deleted successfully"), 200
 
 
 # this only runs if `$ python src/app.py` is executed
