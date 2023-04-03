@@ -110,6 +110,9 @@ def edit_user():
   
     return jsonify(user.serialize()), 200
 
+
+###STAR WARS Characters     
+
 @app.route('/add', methods=[ 'POST' ])
 def add_people():
     body = request.get_json()
@@ -179,6 +182,67 @@ def delete_people():
   
     return jsonify("Character deleted successfully"), 200
 
+### PLANETS     
+
+@app.route('/add-planet', methods=['POST'])
+def add_planet():
+    body = request.get_json()
+    name = body["name"]
+    diameter = body["diameter"]
+    rotation_period = body["rotation_period"]
+    orbital_period = body["orbital_period"]
+    gravity = body["gravity"]
+
+    if body is None:
+        raise APIException("You need to specify the request body as json object", status_code=400)
+    if "name" not in body:
+        raise APIException("You need to specify the name", status_code=400)
+    if  "diameter" not in body:
+        raise APIException("You need to specify the diameter", status_code=400)
+    if "rotation_period" not in body:
+        raise APIException("You need to specify the rotation period", status_code=400)     
+    if  "orbital_period" not in body:
+        raise APIException("You need to specify the orbital period", status_code=400)
+    if  "gravity" not in body:
+        raise APIException("You need to specify the gravity", status_code=400)   
+
+    # create a new People object with the data provided
+    new_planet = Planets(name=name, diameter=diameter, rotation_period=rotation_period, orbital_period=orbital_period, gravity=gravity)
+
+    # add the new person to the database and commit changes
+    db.session.add(new_planet)
+    db.session.commit()
+
+    return jsonify({"message": "New planet added"}), 201
+
+@app.route('/get-planet/<string:name>', methods = [ 'GET' ])
+def get_specific_planet(name):
+    planet = Planets.query.filter_by(name=name).first()
+    if planet:
+        return jsonify(planet.serialize()), 200
+    else:
+        raise APIException('Planet not found', status_code=404)
+
+@app.route('/edit-planet/<string:name>', methods=['PUT'])
+def planet_edit(name):
+    body = request.get_json()   
+    new_name = body["name"]
+    new_diameter = body["diameter"]
+    new_rotation_period= body["rotation_period"]
+    new_orbital_period= body["orbital_period"]
+    new_gravity= body["gravity"]
+
+    planet = Planets.query.filter_by(name=name).first()  
+    planet.name = new_name
+    planet.diameter = new_diameter
+    planet.rotation_period = new_rotation_period
+    planet.orbital_period = new_orbital_period
+    planet.gravity = new_gravity
+
+
+    db.session.commit()
+  
+    return jsonify(person.serialize()), 200
 
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
