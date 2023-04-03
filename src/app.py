@@ -242,7 +242,95 @@ def planet_edit(name):
 
     db.session.commit()
   
-    return jsonify(person.serialize()), 200
+    return jsonify(planet.serialize()), 200
+
+@app.route('/delete-planet', methods=['DELETE'])
+def delete_planet():
+    body = request.get_json()   
+    name = body["name"]
+
+    planet = Planets.query.filter_by(name=name).first()
+    planet.name = name
+
+    db.session.delete(planet)
+    db.session.commit()  
+  
+    return jsonify("Planet deleted successfully"), 200
+
+### STARSHIPS 
+
+@app.route('/add-starship', methods=['POST'])
+def add_starship():
+    body = request.get_json()
+    model = body["model"]
+    starship_class = body["starship_class"]
+    manufacturer = body["manufacturer"]
+    cost_in_credits = body["cost_in_credits"]
+    length = body["length"]
+
+    if body is None:
+        raise APIException("You need to specify the request body as json object", status_code=400)
+    if "model" not in body:
+        raise APIException("You need to specify the model", status_code=400)
+    if  "starship_class" not in body:
+        raise APIException("You need to specify the starship class", status_code=400)
+    if "manufacturer" not in body:
+        raise APIException("You need to specify the manufacturer", status_code=400)     
+    if  "cost_in_credits" not in body:
+        raise APIException("You need to specify the cost in credits", status_code=400)
+    if  "length" not in body:
+        raise APIException("You need to specify the length", status_code=400)   
+
+    # create a new People object with the data provided
+    new_starship = Starships(model=model, starship_class=starship_class, manufacturer=manufacturer, cost_in_credits=cost_in_credits, length=length)
+
+    # add the new person to the database and commit changes
+    db.session.add(new_starship)
+    db.session.commit()
+
+    return jsonify({"message": "New starship added"}), 201
+
+@app.route('/get-starship/<string:name>', methods = [ 'GET' ])
+def get_specific_starship(name):
+    starship = Starships.query.filter_by(model=name).first()
+    if starship:
+        return jsonify(starship.serialize()), 200
+    else:
+        raise APIException('Starship not found', status_code=404)
+
+@app.route('/edit-starship/<string:name>', methods=['PUT'])
+def starship_edit(name):
+    body = request.get_json()   
+    new_model = body["model"]
+    new_starship_class = body["starship_class"]
+    new_manufacturer= body["manufacturer"]
+    new_cost_in_credits= body["cost_in_credits"]
+    new_length= body["length"]
+
+    starship = Starships.query.filter_by(model=name).first()  
+    starship.model = new_model
+    starship.starship_class = new_starship_class
+    starship.manufacturer = new_manufacturer
+    starship.cost_in_credits = new_cost_in_credits
+    starship.length = new_length
+
+
+    db.session.commit()
+  
+    return jsonify(starship.serialize()), 200
+
+@app.route('/delete-starship', methods=['DELETE'])
+def delete_starship():
+    body = request.get_json()   
+    model = body["model"]
+
+    starship = Starships.query.filter_by(model=model).first()
+    starship.model = model
+
+    db.session.delete(starship)
+    db.session.commit()  
+  
+    return jsonify("Starship deleted successfully"), 200
 
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':

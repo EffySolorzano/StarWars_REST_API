@@ -59,12 +59,13 @@ class Starships(db.Model):
     starship_class = db.Column(db.String(80), unique=False, nullable=False)
     manufacturer = db.Column(db.String(80), unique=False, nullable=False)
     cost_in_credits = db.Column(db.String(80), unique=False, nullable=False)
+    length = db.Column(db.String(80), unique=False, nullable=False)
 
     def serialize(self):
         return {
             "id": self.id,
             "model": self.model,
             "starship_class": self.starship_class,
-            "manufacturer": self.orbital_period,
-            "cost_in_credits": self.gracost_in_credits,
+            "manufacturer": self.manufacturer,
+            "cost_in_credits": self.cost_in_credits,
         }                   
