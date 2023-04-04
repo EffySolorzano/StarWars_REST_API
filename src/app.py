@@ -8,11 +8,12 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, User, People, Planets, Starships
+from models import db, User, People, Planets, Starships, Favorites
 #from models import Person
 
 app = Flask(__name__)
 app.url_map.strict_slashes = False
+
 
 db_url = os.getenv("DATABASE_URL")
 if db_url is not None:
@@ -68,11 +69,11 @@ def register_user():
     db.session.add(new_user) #agregamos el nuevo usuario a la base de datos
     db.session.commit() #guardamos los cambios en la base de datos
 
-    return jsonify({"mensaje":"Usuario creado correctamente"}), 201 
+    return jsonify({"mensaje":"User successfully created"}), 201 
 
-@app.route('/get-user/<int:id>', methods=['GET'])
-def get_specific_user(id):
-    user = User.query.get(id)    
+@app.route('/get-user/<string:name>', methods=['GET'])
+def get_specific_user(name):
+    user = User.query.filter_by(name=name).first() 
   
     return jsonify(user.serialize()), 200
 
@@ -331,6 +332,27 @@ def delete_starship():
     db.session.commit()  
   
     return jsonify("Starship deleted successfully"), 200
+
+
+## **************FAVORITES************
+
+@app.route('/users/<int:user_id>/favorites', methods=['GET'])
+def get_user_favorites(user_id):
+    favorites = Favorites.query.filter_by(user_id=user_id).all()
+    return jsonify([favorite.serialize() for favorite in favorites])
+
+@app.route('/favorites', methods=['POST'])
+def create_favorite():
+    data = request.get_json()
+    favorite = Favorites (
+        user_id=data['user_id'],
+        people_id=data['people_id'],
+        planet_id=data['planet_id'],
+        starship_id=data['starship_id']
+    )
+    db.session.add(favorite)
+    db.session.commit()
+    return jsonify(favorite.serialize()), 201
 
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':

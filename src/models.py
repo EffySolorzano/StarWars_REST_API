@@ -1,6 +1,8 @@
 from flask_sqlalchemy import SQLAlchemy
 
+
 db = SQLAlchemy()
+
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -22,7 +24,7 @@ class User(db.Model):
 
 class People(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(120), unique=False, nullable=False)
+    name = db.Column(db.String(120), unique=True, nullable=False)
     height = db.Column(db.String(80), unique=False, nullable=False)
     mass = db.Column(db.String(80), unique=False, nullable=False)
     hair_color = db.Column(db.String(80), unique=False, nullable=False)
@@ -38,7 +40,7 @@ class People(db.Model):
 
 class Planets(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(120), unique=False, nullable=False)
+    name = db.Column(db.String(120), unique=True, nullable=False)
     diameter = db.Column(db.String(120), unique=False, nullable=False)
     rotation_period = db.Column(db.String(80), unique=False, nullable=False)
     orbital_period = db.Column(db.String(80), unique=False, nullable=False)
@@ -55,7 +57,7 @@ class Planets(db.Model):
 
 class Starships(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    model = db.Column(db.String(120), unique=False, nullable=False)
+    model = db.Column(db.String(120), unique=True, nullable=False)
     starship_class = db.Column(db.String(80), unique=False, nullable=False)
     manufacturer = db.Column(db.String(80), unique=False, nullable=False)
     cost_in_credits = db.Column(db.String(80), unique=False, nullable=False)
@@ -68,4 +70,31 @@ class Starships(db.Model):
             "starship_class": self.starship_class,
             "manufacturer": self.manufacturer,
             "cost_in_credits": self.cost_in_credits,
-        }                   
+        }
+        
+class Favorites(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    people_id = db.Column(db.Integer, db.ForeignKey('people.id'), nullable=True)
+    planet_id = db.Column(db.Integer, db.ForeignKey('planets.id'), nullable=True)
+    starship_id = db.Column(db.Integer, db.ForeignKey('starships.id'), nullable=True)
+
+    user = db.relationship('User', backref='favorites')
+
+    people = db.relationship('People', backref='favorites')
+    planet = db.relationship('Planets', backref='favorites')
+    starship = db.relationship('Starships', backref='favorites')
+
+
+    def serialize(self):
+        return{
+            'id': self.id,
+            'user_id': self.user_id,
+            'people_id': self.people_id,
+            'planet_id': self.planet_id,
+            'starship_id': self.starship_id,
+            'user': self.user.serialize() if self.user else None,
+            'people': self.people.serialize() if self.people else None,
+            'planet': self.planet.serialize() if self.planet else None,
+            'starship': self.starship.serialize() if self.starship else None
+        }
