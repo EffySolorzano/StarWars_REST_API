@@ -336,19 +336,19 @@ def delete_starship():
 
 ## **************FAVORITES************
 
-@app.route('/users/<int:user_id>/favorites', methods=['GET'])
-def get_user_favorites(user_id):
-    favorites = Favorites.query.filter_by(user_id=user_id).all()
+@app.route('/users/<string:name>/favorites', methods=['GET'])
+def get_user_favorites(name):
+    favorites = Favorites.query.filter_by(user=name).all()
     return jsonify([favorite.serialize() for favorite in favorites])
 
 @app.route('/favorites', methods=['POST'])
 def create_favorite():
     data = request.get_json()
     favorite = Favorites (
-        user_id=data['user_id'],
-        people_id=data['people_id'],
-        planet_id=data['planet_id'],
-        starship_id=data['starship_id']
+        user =data['user_name'],
+        people =data['people_name'],
+        planet =data['planet_name'],
+        starship =data['starship_model']
     )
     db.session.add(favorite)
     db.session.commit()
