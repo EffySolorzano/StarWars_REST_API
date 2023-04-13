@@ -8,12 +8,25 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, User, People, Planets, Starships, Favorites
+from models import db, User, People, Planets, Starships, Favorites, TokenBlockedList
 #from models import Person
+
+from flask_jwt_extended import create_access_token
+from flask_jwt_extended import get_jwt_identity, get_jwt
+from flask_jwt_extended import jwt_required
+from flask_jwt_extended import JWTManager
+
+from datetime import date, time, datetime, timezone, timedelta
+
+from flask_bcrypt import Bcrypt
 
 app = Flask(__name__)
 app.url_map.strict_slashes = False
 
+app.config["JWT_SECRET_KEY"] = os.getenv("FLASK_APP_KEY")
+jwt = JWTManager(app)
+
+bcrypt = Bcrypt(app) #inicio mi instancia de Bcrypt
 
 db_url = os.getenv("DATABASE_URL")
 if db_url is not None:
@@ -26,6 +39,16 @@ MIGRATE = Migrate(app, db)
 db.init_app(app)
 CORS(app)
 setup_admin(app)
+
+def verificacionToken(jti):
+    jti#Identificador del JWT (es más corto)
+    print("jit", jti)
+    token = TokenBlockedList.query.filter_by(token=jti).first()
+
+    if token is None:
+        return False
+    
+    return True
 
 # Handle/serialize errors like a JSON object
 @app.errorhandler(APIException)

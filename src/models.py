@@ -98,3 +98,17 @@ class Favorites(db.Model):
             'planet': self.planet.serialize() if self.planet else None,
             'starship': self.starship.serialize() if self.starship else None
         }
+
+class TokenBlockedList(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    token = db.Column(db.String(250), unique=True, nullable=False)
+    email = db.Column(db.String(50), unique=False)
+    created_at = db.Column(db.DateTime, nullable=False)
+
+    def serialize(self):
+        return {
+            "id":self.id,
+            "token":self.token,
+            "email":self.email,
+            "created":self.created_at
+        }
